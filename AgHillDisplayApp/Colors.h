@@ -1,0 +1,13 @@
+#pragma once
+
+#define NDSUGREEN RGB(0, 88, 61)
+
+#define NDSUYELLOW RGB(255, 196, 37)
+
+#define NDSULOWLIGHT RGB(0, 34, 27)
+
+#define NDSUHIGHLIGHT RGB(255, 244, 214)
+
+#define NDSUHIGHLIGHT2 RGB(255, 215, 105)
+
+#define NDSULOWLIGHT2 RGB(207, 163, 45)
