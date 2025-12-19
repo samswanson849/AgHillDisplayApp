@@ -16,15 +16,13 @@ ATOM                MyRegisterClass(HINSTANCE hInstance,colorPallete* col);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
 HWND InitInstance(HINSTANCE hInstance, int nCmdShow)
-{    
-    // Store instance handle in our global variable
+{    // Store instance handle in our global variable
     ULONG ports[10];
     ULONG found = 0;
     GetCommPorts(ports, 10, &found);
     if (found > 0) {
         std::string com = "COM" + std::to_string(ports[0]);
-        HANDLE hSerial = CreateFileA(com.c_str(), GENERIC_READ | GENERIC_WRITE, 
-            0, NULL,
+        HANDLE hSerial = CreateFileA(com.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL,
             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         DCB dcbSerialParams = { 0 };
         dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
@@ -36,9 +34,9 @@ HWND InitInstance(HINSTANCE hInstance, int nCmdShow)
         dcbSerialParams.EofChar = '\n';
         SetCommState(hSerial, &dcbSerialParams);
         COMMTIMEOUTS timeouts = { 0 };
-        timeouts.ReadIntervalTimeout = 50;  
-        timeouts.ReadTotalTimeoutConstant = 50;
-        timeouts.ReadTotalTimeoutMultiplier = 10;
+        timeouts.ReadIntervalTimeout = 50;   // ms
+        timeouts.ReadTotalTimeoutConstant = 50;   // ms
+        timeouts.ReadTotalTimeoutMultiplier = 10;   // ms per byte
         timeouts.WriteTotalTimeoutConstant = 50;
         timeouts.WriteTotalTimeoutMultiplier = 10;
         SetCommTimeouts(hSerial, &timeouts);
