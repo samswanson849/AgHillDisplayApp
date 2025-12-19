@@ -17,7 +17,36 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
 HWND InitInstance(HINSTANCE hInstance, int nCmdShow)
 {    // Store instance handle in our global variable
-
+    ULONG ports[10];
+    ULONG found = 0;
+    GetCommPorts(ports, 10, &found);
+    if (found > 0) {
+        std::string com = "COM" + std::to_string(ports[0]);
+        HANDLE hSerial = CreateFileA(com.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL,
+            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        DCB dcbSerialParams = { 0 };
+        dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
+        GetCommState(hSerial, &dcbSerialParams);
+        dcbSerialParams.BaudRate = CBR_115200;
+        dcbSerialParams.ByteSize = 8;
+        dcbSerialParams.StopBits = ONESTOPBIT;
+        dcbSerialParams.Parity = NOPARITY;
+        dcbSerialParams.EofChar = '\n';
+        SetCommState(hSerial, &dcbSerialParams);
+        COMMTIMEOUTS timeouts = { 0 };
+        timeouts.ReadIntervalTimeout = 50;   // ms
+        timeouts.ReadTotalTimeoutConstant = 50;   // ms
+        timeouts.ReadTotalTimeoutMultiplier = 10;   // ms per byte
+        timeouts.WriteTotalTimeoutConstant = 50;
+        timeouts.WriteTotalTimeoutMultiplier = 10;
+        SetCommTimeouts(hSerial, &timeouts);
+        DWORD readLeng = 0;
+        CHAR buffer[100];
+        WriteFile(hSerial,"A", 1, &readLeng, NULL);
+        ReadFile(hSerial,buffer,sizeof(buffer), &readLeng, NULL);
+        CloseHandle(hSerial);
+    }
+    
     HWND hWnd = CreateWindowW(L"AgHillDispClass", L"AgHillDisplay", WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
@@ -156,7 +185,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     pos.x = 100;
     pos.y = 100;
     b1->setPos(&pos, positionUI::CENTER);
-
+    
     MSG msg;
 
     ShowWindow(hwnd, nCmdShow);
